@@ -7,14 +7,17 @@ import (
     "github.com/faiface/pixel/imdraw"
     "github.com/faiface/pixel/pixelgl"
     "golang.org/x/image/colornames"
+    "math/rand/v2"
 
     "snake/try"
 )
 
 func run() {
+    maxX := 800
+    maxY := 600 
     cfg := pixelgl.WindowConfig{
         Title:  "Canvas interactif en Go",
-        Bounds: pixel.R(0, 0, 800, 600),
+        Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
         VSync:  true,
     }
 
@@ -31,15 +34,11 @@ func run() {
     initialPos := []int{400, 300}
     dequePosition.PushBack(initialPos)
     dequePosition.Print()
+    var isWin bool = false
+    randomPoint := [2]int{rand.IntN(maxX), rand.IntN(maxY)}
+    var radius int = 10
 
-    for !win.Closed() {
-        if win.Pressed(pixelgl.MouseButtonLeft) {
-            mousePos := win.MousePosition()
-            imd.Color = colornames.Red
-            imd.Push(mousePos)
-            imd.Circle(5, 0)
-        }
-        
+    for !win.Closed() || isWin {        
         lastDirection = currentDirection
         if win.Pressed(pixelgl.KeyRight) {
             currentDirection = [2]int{1, 0}
@@ -60,19 +59,37 @@ func run() {
         }
 
         dequePosition = try.UpdateMap(currentDirection, dequePosition)
+        head := dequePosition.GetFront()
+        isInBounds := try.IsInBounds(head, maxX, maxY)
+        if !isInBounds {
+            isWin = false
+            break
+        }
+        isTouching := try.HandleSnakeApple(dequePosition, randomPoint, radius * 2)
+        if isTouching {
+            tail := dequePosition.GetQueue()
+            newTail := []int{tail[0] - currentDirection[0]*radius*2, tail[1] - currentDirection[1]*radius*2}
+            dequePosition.PushBack(newTail)
+            randomPoint = [2]int{rand.IntN(maxX), rand.IntN(maxY)}
+        }
         
         imd.Clear()
         for _, pos := range dequePosition.Data {
             imd.Color = colornames.Green
             imd.Push(pixel.V(float64(pos[0]), float64(pos[1])))
-            imd.Circle(10, 0)
+            imd.Circle(float64(radius), 0)
         }
+
+        imd.Color = colornames.Red
+        imd.Push(pixel.V(float64(randomPoint[0]), float64(randomPoint[1])))
 
         win.Clear(colornames.Black)
         imd.Draw(win)
         win.Update()
     }
+
 }
+
 
 func main() {
     pixelgl.Run(run)

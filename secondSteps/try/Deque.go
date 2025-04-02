@@ -13,6 +13,13 @@ func (d *Deque) GetFront() []int {
 	return d.Data[0]
 }
 
+func (d *Deque) GetQueue() []int {
+	if len(d.Data) == 0 {
+		return nil
+	}
+	return d.Data[len(d.Data)-1]
+}
+
 func (d *Deque) PushFront(value []int) {
 	d.Data = append([][]int{value}, d.Data...)
 }
