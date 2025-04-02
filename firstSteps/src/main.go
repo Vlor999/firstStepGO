@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"errors"
+	"sync"
 )
+
+var wg = sync.WaitGroup{}
 
 func doSomething() string{
 	var age string
@@ -54,6 +57,7 @@ func useArray(){
 	mainSlice := mainArray[:]
 	mainSlice = append(mainSlice, 89)
 	fmt.Println(mainSlice, cap(mainSlice), len(mainSlice))
+	wg.Done()
 }
 
 func useMap(){
@@ -65,12 +69,14 @@ func useMap(){
 	for name, age := range myMap{
 		fmt.Println(name + " -> " + strconv.Itoa(age))
 	}
+	wg.Done()
 }
 
 func useLoop(){
 	for i:= 0; i < 5000; i++{
 		fmt.Println("Valeur : " + strconv.Itoa(i))
 	}
+	wg.Done()
 }
 
 func main(){
@@ -85,8 +91,12 @@ func main(){
 		fmt.Println("Error : " + err.Error())
 	}
 
-	useArray()
-	useMap()
-	useLoop()
+	go useArray()
+	wg.Add(1)
+	go useMap()
+	wg.Add(1)
+	go useLoop()
+	wg.Add(1)
 
+	wg.Wait()
 }
