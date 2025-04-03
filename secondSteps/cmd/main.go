@@ -67,6 +67,7 @@ func run() {
         }
         isTouching := try.HandleSnakeApple(dequePosition, randomPoint, radius * 2)
         if isTouching {
+            fmt.Println("Adding a new point to the queue")
             tail := dequePosition.GetQueue()
             newTail := []int{tail[0] - currentDirection[0]*radius*2, tail[1] - currentDirection[1]*radius*2}
             dequePosition.PushBack(newTail)
