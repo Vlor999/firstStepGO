@@ -1,62 +1,63 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
 
-    "github.com/faiface/pixel"
-    "github.com/faiface/pixel/imdraw"
-    "github.com/faiface/pixel/pixelgl"
-    "golang.org/x/image/colornames"
-    "math/rand/v2"
+	"math/rand/v2"
 
-    "snake/try"
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/imdraw"
+	"github.com/faiface/pixel/pixelgl"
+	"golang.org/x/image/colornames"
+
+	"snake/try"
 )
 
 func run() {
-    maxX := 800
-    maxY := 600 
-    cfg := pixelgl.WindowConfig{
-        Title:  "Canvas interactif en Go",
-        Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
-        VSync:  true,
-    }
+	maxX := 800
+	maxY := 600
+	cfg := pixelgl.WindowConfig{
+		Title:  "Canvas interactif en Go",
+		Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
+		VSync:  true,
+	}
 
-    win, err := pixelgl.NewWindow(cfg)
-    if err != nil {
-        panic(err)
-    }
+	win, err := pixelgl.NewWindow(cfg)
+	if err != nil {
+		panic(err)
+	}
 
-    imd := imdraw.New(nil)
-    var lastDirection [2]int
-    var currentDirection [2]int
-    dequePosition := &try.Deque{}
+	imd := imdraw.New(nil)
+	var lastDirection [2]int
+	var currentDirection [2]int
+	dequePosition := &try.Deque{}
 
-    initialPos := []int{400, 300}
-    dequePosition.PushBack(initialPos)
-    dequePosition.Print()
-    var isWin bool = false
-    randomPoint := [2]int{rand.IntN(maxX), rand.IntN(maxY)}
-    var radius int = 10
+	initialPos := []int{400, 300}
+	dequePosition.PushBack(initialPos)
+	dequePosition.Print()
+	var isWin bool = false
+	randomPoint := [2]int{rand.IntN(maxX), rand.IntN(maxY)}
+	var radius int = 10
 
-    for !win.Closed() || isWin {        
-        lastDirection = currentDirection
-        if win.Pressed(pixelgl.KeyRight) {
-            currentDirection = [2]int{1, 0}
-        }
-        if win.Pressed(pixelgl.KeyLeft) {
-            currentDirection = [2]int{-1, 0}
-        }
-        if win.Pressed(pixelgl.KeyUp) {
-            currentDirection = [2]int{0, 1}
-        }
-        if win.Pressed(pixelgl.KeyDown) {
-            currentDirection = [2]int{0, -1}
-        }
+	for !win.Closed() || isWin {
+		lastDirection = currentDirection
+		if win.Pressed(pixelgl.KeyRight) {
+			currentDirection = [2]int{1, 0}
+		}
+		if win.Pressed(pixelgl.KeyLeft) {
+			currentDirection = [2]int{-1, 0}
+		}
+		if win.Pressed(pixelgl.KeyUp) {
+			currentDirection = [2]int{0, 1}
+		}
+		if win.Pressed(pixelgl.KeyDown) {
+			currentDirection = [2]int{0, -1}
+		}
 
-        if lastDirection != currentDirection {
-            fmt.Println("Direction changed to:", currentDirection)
-            dequePosition.Print()
-        }
+		if lastDirection != currentDirection {
+			fmt.Println("Direction changed to:", currentDirection)
+			dequePosition.Print()
+		}
 
         dequePosition = try.UpdateMap(currentDirection, dequePosition)
         head := dequePosition.GetFront()
@@ -67,10 +68,11 @@ func run() {
         }
         isTouching := try.HandleSnakeApple(dequePosition, randomPoint, radius * 2)
         if isTouching {
-            fmt.Println("Adding a new point to the queue")
-            tail := dequePosition.GetQueue()
-            newTail := []int{tail[0] - currentDirection[0]*radius*2, tail[1] - currentDirection[1]*radius*2}
-            dequePosition.PushBack(newTail)
+            for i := 0; i < radius * 2 ; i++{
+                tail := dequePosition.GetQueue()
+                newTail := []int{tail[0] - currentDirection[0], tail[1] - currentDirection[1]}
+                dequePosition.PushBack(newTail)
+            }
             randomPoint = [2]int{rand.IntN(maxX), rand.IntN(maxY)}
         }
         
@@ -81,17 +83,16 @@ func run() {
             imd.Circle(float64(radius), 0)
         }
 
-        imd.Color = colornames.Red
-        imd.Push(pixel.V(float64(randomPoint[0]), float64(randomPoint[1])))
+		imd.Color = colornames.Red
+		imd.Push(pixel.V(float64(randomPoint[0]), float64(randomPoint[1])))
 
-        win.Clear(colornames.Black)
-        imd.Draw(win)
-        win.Update()
-    }
+		win.Clear(colornames.Black)
+		imd.Draw(win)
+		win.Update()
+	}
 
 }
 
-
 func main() {
-    pixelgl.Run(run)
+	pixelgl.Run(run)
 }

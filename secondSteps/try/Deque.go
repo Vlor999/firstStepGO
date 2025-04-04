@@ -49,3 +49,7 @@ func (d *Deque) PopBack() ([]int, bool) {
 func (d *Deque) Print() {
 	fmt.Println(d.Data)
 }
+
+func (d *Deque) Size() int {
+	return len(d.Data)
+}
