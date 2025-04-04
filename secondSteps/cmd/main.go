@@ -66,24 +66,36 @@ func run() {
     )
 
 	cfg := pixelgl.WindowConfig{
-		Title:  "Go Snake",
-		Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
-		VSync:  true,
-	}
-
-	snakeWindow, err := pixelgl.NewWindow(cfg)
-	if err != nil {
-		panic(err)
-	}
-
+        Title:  "Go Snake",
+        Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
+        VSync:  true,
+    }
+    
+    snakeWindow, err := pixelgl.NewWindow(cfg)
+    if err != nil {
+        panic(err)
+    }
+    
+    pos := snakeWindow.GetPos()
+    x, y := pos.X, pos.Y
+    
+    compteurWidth := 200.0
+    compteurHeight := 100.0
+    margin := 10.0
+    
     compteur_window, err2 := pixelgl.NewWindow(pixelgl.WindowConfig{
-		Title:  "Compteur",
-		Bounds: pixel.R(0, 0, 200, 100),
-		VSync:  true,
-	})
-	if err2 != nil {
-		panic(err2)
-	}
+        Title:  "Compteur",
+        Bounds: pixel.R(0, 0, compteurWidth, compteurHeight),
+        VSync:  true,
+    })
+    if err2 != nil {
+        panic(err2)
+    }
+    
+    compteur_window.SetPos(pixel.V(
+        x - compteurWidth - margin,
+        y,
+    ))
     
 
     atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -144,6 +156,14 @@ func run() {
         fmt.Fprintf(txt, "%d", compteur)
         txt.Draw(compteur_window, pixel.IM)
         compteur_window.Update()
+
+        pos := snakeWindow.GetPos()
+        x, y := pos.X, pos.Y
+
+        compteur_window.SetPos(pixel.V(
+            x - compteurWidth - margin,
+            y,
+        ))
 	}
 
 }
