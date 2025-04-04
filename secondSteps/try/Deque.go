@@ -46,6 +46,10 @@ func (d *Deque) PopBack() ([]int, bool) {
 	return back, true
 }
 
+func (d *Deque) Verify() bool {
+	return true
+}
+
 func (d *Deque) Print() {
 	fmt.Println(d.Data)
 }
