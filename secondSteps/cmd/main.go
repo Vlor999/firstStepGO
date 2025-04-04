@@ -26,7 +26,7 @@ func update_current(currentDirection [2]int, lastDirection [2]int) [2]int {
         if currentDirection[0] == -lastDirection[0] && currentDirection[1] == -lastDirection[1] {
             currentDirection = lastDirection
         } else {
-            fmt.Println("Direction changed to:", currentDirection)
+            fmt.Print("Direction changed to:", currentDirection, "\r")
         }
     }
     return currentDirection
@@ -94,7 +94,6 @@ func run() {
 		currentDirection = update_current(currentDirection, lastDirection)
 
 		if !dequePosition.Verify(radius) {
-			fmt.Println("Collision")
             isWin = false
 			break
 		}
@@ -107,6 +106,10 @@ func run() {
 		}
 
 		update_randomPoint_and_touching(dequePosition, &randomPoint, &isTouching, &compteur, radius, maxX, maxY)
+
+        if compteur == 100 {
+            break // isWin = true
+        }
 
 		win.Clear(colornames.Black)
 		imd.Clear()
@@ -147,7 +150,20 @@ func run() {
 		    imd.Clear()
             txt.Clear()
 
-            fmt.Fprintf(txt, "Game Over: %d", compteur)
+            fmt.Fprintf(txt, "Press ESC to close the game\n\nGame Over: %d", compteur)
+            txt.Draw(win, pixel.IM)
+            win.Update()
+        }
+    } else {
+        for !win.Closed(){
+            if win.Pressed(pixelgl.KeyEscape){
+                win.SetClosed(true)
+            }
+            win.Clear(colornames.Black)
+		    imd.Clear()
+            txt.Clear()
+
+            fmt.Fprintf(txt, "Press ESC to close the game\n\nEnd of the game : %d", compteur)
             txt.Draw(win, pixel.IM)
             win.Update()
         }
