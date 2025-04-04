@@ -1,9 +1,8 @@
 package try
 
-func UpdateMap(direction [2]int, dequePosition *Deque, mustDelete bool) *Deque {
+func UpdateMap(direction [2]int, dequePosition *Deque, mustDelete bool) {
     if len(dequePosition.Data) == 0 {
         dequePosition.PushBack([]int{400, 300})
-        return dequePosition
     }
     
     x := direction[0]
@@ -11,14 +10,12 @@ func UpdateMap(direction [2]int, dequePosition *Deque, mustDelete bool) *Deque {
     head := dequePosition.GetFront()
     if head == nil {
         dequePosition.PushBack([]int{400, 300})
-        return dequePosition
     }
     
     dequePosition.PushFront([]int{head[0] + x, head[1] + y})
     if mustDelete{
         _, _ = dequePosition.PopBack()
     }
-    return dequePosition
 }
 
 func IsInBounds(head []int, maxX int, maxY int) bool {

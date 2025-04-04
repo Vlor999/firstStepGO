@@ -91,7 +91,7 @@ func run() {
 	maxX := 800
 	maxY := 600
 	cfg := pixelgl.WindowConfig{
-		Title:  "Canvas interactif en Go",
+		Title:  "Go Snake",
 		Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
 		VSync:  true,
 	}
@@ -132,7 +132,7 @@ func run() {
             break
         }
 
-        dequePosition = try.UpdateMap(currentDirection, dequePosition, isTouching == 0)
+        try.UpdateMap(currentDirection, dequePosition, isTouching == 0)
         head := dequePosition.GetFront()
         isInBounds := try.IsInBounds(head, maxX, maxY)
         if !isInBounds {
