@@ -1,1 +1,37 @@
-bin/*
+# Binaries for programs and plugins
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build output
+*.out
+
+# Dependency directories (vendor/)
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Logs
+*.log
+
+# Coverage files
+*.cover
+*.cov
+
+# Build artifacts
+*.a
+*.o
+*.obj
+
+.DS_Store

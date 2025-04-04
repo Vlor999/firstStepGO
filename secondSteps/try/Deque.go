@@ -46,7 +46,21 @@ func (d *Deque) PopBack() ([]int, bool) {
 	return back, true
 }
 
-func (d *Deque) Verify() bool {
+func (d *Deque) Verify(radius int) bool {
+	if d.Size() <= 2*radius {
+		return true
+	}
+
+	radiusSquared := radius * radius
+	head := d.GetFront()
+	headX, headY := head[0], head[1]
+
+	for _, current := range d.Data[2*radius+1:] {
+		dx, dy := headX-current[0], headY-current[1]
+		if dx*dx+dy*dy < radiusSquared {
+			return false
+		}
+	}
 	return true
 }
 

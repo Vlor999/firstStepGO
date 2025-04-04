@@ -61,11 +61,15 @@ func run() {
             if currentDirection[0] == -lastDirection[0] && currentDirection[1] == -lastDirection[1] {
                 currentDirection = lastDirection
             } else {
-                dequePosition.Verify()
                 fmt.Println("Direction changed to:", currentDirection)
             }
         }
-
+        
+        isGood := dequePosition.Verify(radius)
+        if !isGood{
+            fmt.Println("Collision")
+            break
+        }
         dequePosition = try.UpdateMap(currentDirection, dequePosition, isTouching == 0)
         head := dequePosition.GetFront()
         isInBounds := try.IsInBounds(head, maxX, maxY)
