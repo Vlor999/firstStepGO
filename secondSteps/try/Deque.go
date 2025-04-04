@@ -1,6 +1,9 @@
 package try
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type Deque struct {
 	Data [][]int
@@ -46,23 +49,43 @@ func (d *Deque) PopBack() ([]int, bool) {
 	return back, true
 }
 
+func localVerify(pos1 []int, pos2 []int, radius int, result *bool, wg *sync.WaitGroup, mu *sync.Mutex) {
+	defer wg.Done()
+
+	mu.Lock()
+	if !*result {
+		mu.Unlock()
+		return
+	}
+	mu.Unlock()
+
+	dist := (pos1[0]-pos2[0])*(pos1[0]-pos2[0]) + (pos1[1]-pos2[1])*(pos1[1]-pos2[1])
+	mu.Lock()
+	*result = dist >= radius*radius
+	mu.Unlock()
+}
+
 func (d *Deque) Verify(radius int) bool {
 	if d.Size() <= 2*radius {
 		return true
 	}
 
-	radiusSquared := radius * radius
 	head := d.GetFront()
-	headX, headY := head[0], head[1]
+	data := d.Data[2*radius+1:]
+	result := true
 
-	for _, current := range d.Data[2*radius+1:] {
-		dx, dy := headX-current[0], headY-current[1]
-		if dx*dx+dy*dy < radiusSquared {
-			return false
-		}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	for _, current := range data {
+		wg.Add(1)
+		go localVerify(head, current, radius, &result, &wg, &mu)
 	}
-	return true
+
+	wg.Wait()
+	return result
 }
+
 
 func (d *Deque) Print() {
 	fmt.Println(d.Data)

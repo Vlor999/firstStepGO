@@ -35,28 +35,3 @@ func HandleSnakeApple(dequePosition *Deque, randomPoint [2]int, radius int) int 
 	}
 	return 0
 }
-
-func CheckSelfCollision(deque *Deque) bool {
-	if len(deque.Data) <= 1 {
-		return false
-	}
-
-	head := deque.GetFront()
-
-	for i := 1; i < len(deque.Data); i++ {
-		segment := deque.Data[i]
-		// Si les coordonnées sont très proches, il y a collision
-		if abs(head[0]-segment[0]) < 5 && abs(head[1]-segment[1]) < 5 {
-			return true
-		}
-	}
-
-	return false
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
