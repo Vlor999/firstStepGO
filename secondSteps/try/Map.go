@@ -1,20 +1,20 @@
 package try
 
 func UpdateMap(direction [2]int, dequePosition *Deque, mustDelete bool) {
-    if len(dequePosition.Data) == 0 {
+    if dequePosition.size == 0 {
         dequePosition.PushBack([]int{400, 300})
     }
     
     x := direction[0]
     y := direction[1]
-    head := dequePosition.GetFront()
+    head := dequePosition.GetFront().value
     if head == nil {
         dequePosition.PushBack([]int{400, 300})
     }
     
     dequePosition.PushFront([]int{head[0] + x, head[1] + y})
     if mustDelete{
-        _, _ = dequePosition.PopBack()
+        _ = dequePosition.PopBack()
     }
 }
 
@@ -25,7 +25,7 @@ func IsInBounds(head []int, maxX int, maxY int) bool {
 }
 
 func HandleSnakeApple(dequePosition *Deque, randomPoint [2]int, radius int) int {
-	head := dequePosition.GetFront()
+	head := dequePosition.GetFront().value
 	x_snake := head[0]
 	y_snake := head[1]
 	x_random := randomPoint[0]

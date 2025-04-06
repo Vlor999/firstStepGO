@@ -99,7 +99,7 @@ func run() {
 		}
 
 		try.UpdateMap(currentDirection, dequePosition, isTouching == 0)
-		head := dequePosition.GetFront()
+		head := dequePosition.GetFront().GetValue()
 		if !try.IsInBounds(head, maxX, maxY) {
 			isWin = false
 			break
@@ -114,11 +114,12 @@ func run() {
 		win.Clear(colornames.Black)
 		imd.Clear()
 
-		for _, pos := range dequePosition.Data {
+		for node := dequePosition.GetFront(); node != nil; node = node.GetNext() {
 			imd.Color = colornames.Limegreen
-			imd.Push(pixel.V(float64(pos[0]), float64(pos[1])))
+			imd.Push(pixel.V(float64(node.GetValue()[0]), float64(node.GetValue()[1])))
 			imd.Circle(float64(radius), 0)
 		}
+		
 
 		imd.Color = colornames.Red
 		imd.Push(pixel.V(float64(randomPoint[0]), float64(randomPoint[1])))
