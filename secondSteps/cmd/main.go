@@ -14,10 +14,13 @@ import (
 	"snake/try"
 )
 
-func get2dRandPoint(minX int, maxX int, minY int, maxY int) [2]int {
+func get2dRandPoint(currentDeque *try.Deque, minX int, maxX int, minY int, maxY int) [2]int {
+	val1 := rand.Intn(maxX-minX) + minX
+	val2 := rand.Intn(maxY-minY) + minY
+
     return [2]int{
-        rand.Intn(maxX-minX) + minX,
-        rand.Intn(maxY-minY) + minY,
+		val1,
+        val2,
     }
 }
 
@@ -26,7 +29,7 @@ func update_current(currentDirection [2]int, lastDirection [2]int) [2]int {
         if currentDirection[0] == -lastDirection[0] && currentDirection[1] == -lastDirection[1] {
             currentDirection = lastDirection
         } else {
-            fmt.Print("Direction changed to:", currentDirection, "\r")
+            fmt.Printf("\rDirection changed to: [%2d, %2d]  ", currentDirection[0], currentDirection[1])
         }
     }
     return currentDirection
@@ -37,7 +40,7 @@ func update_randomPoint_and_touching(dequePosition *try.Deque, randomPoint *[2]i
     *isTouching = max(*isTouching, currentTouching)
     if *isTouching > 0 {
         if *isTouching == 2 * radius {
-            *randomPoint = get2dRandPoint(radius, maxX - radius, radius,  maxY - radius)
+            *randomPoint = get2dRandPoint(dequePosition, radius, maxX - radius, radius,  maxY - radius)
             *compteur++
         }
         *isTouching--
@@ -45,11 +48,16 @@ func update_randomPoint_and_touching(dequePosition *try.Deque, randomPoint *[2]i
 }
 
 func run() {
-    const (
-        maxX int = 800
-        maxY int = 600
-        radius int = 10
-    )
+	monitor := pixelgl.PrimaryMonitor()
+	width, height := monitor.Size()
+	height -= 155
+	radiusFromData := min(width, height) / 45
+
+	var (
+		maxX int = int(width)
+		maxY int = int(height)
+		radius int = int(max(radiusFromData, 10))
+	)
 
 	var (
 		lastDirection [2]int
@@ -75,7 +83,19 @@ func run() {
 	txt := text.New(pixel.V(20, float64(maxY)-30), atlas)
 	imd := imdraw.New(nil)
 	dequePosition := &try.Deque{}
-	randomPoint := get2dRandPoint(radius, maxX-radius, radius, maxY-radius)
+	randomPoint := get2dRandPoint(dequePosition, radius, maxX-radius, radius, maxY-radius)
+
+	file, errFile := try.ReadFile("../data/data.json")
+	if errFile != nil{
+		fmt.Println("Erreur Lecture fichier")
+		return
+	}
+	listUsers := try.ParseUsers(file)
+
+	for _, user := range listUsers.Users {
+		fmt.Println("User Name:", user.Name)
+		fmt.Println("User Score:", user.Value)
+	}
 
 	for !win.Closed() && isWin {
 		lastDirection = currentDirection
