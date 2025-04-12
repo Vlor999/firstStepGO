@@ -18,33 +18,33 @@ func get2dRandPoint(currentDeque *try.Deque, minX int, maxX int, minY int, maxY 
 	val1 := rand.Intn(maxX-minX) + minX
 	val2 := rand.Intn(maxY-minY) + minY
 
-    return [2]int{
+	return [2]int{
 		val1,
-        val2,
-    }
+		val2,
+	}
 }
 
 func update_current(currentDirection [2]int, lastDirection [2]int) [2]int {
-    if lastDirection != currentDirection {
-        if currentDirection[0] == -lastDirection[0] && currentDirection[1] == -lastDirection[1] {
-            currentDirection = lastDirection
-        } else {
-            fmt.Printf("\rDirection changed to: [%2d, %2d]  ", currentDirection[0], currentDirection[1])
-        }
-    }
-    return currentDirection
+	if lastDirection != currentDirection {
+		if currentDirection[0] == -lastDirection[0] && currentDirection[1] == -lastDirection[1] {
+			currentDirection = lastDirection
+		} else {
+			fmt.Printf("\rDirection changed to: [%2d, %2d]  ", currentDirection[0], currentDirection[1])
+		}
+	}
+	return currentDirection
 }
 
 func update_randomPoint_and_touching(dequePosition *try.Deque, randomPoint *[2]int, isTouching *int, compteur *int, radius int, maxX int, maxY int) {
-    currentTouching := try.HandleSnakeApple(dequePosition, *randomPoint, radius * 2)
-    *isTouching = max(*isTouching, currentTouching)
-    if *isTouching > 0 {
-        if *isTouching == 2 * radius {
-            *randomPoint = get2dRandPoint(dequePosition, radius, maxX - radius, radius,  maxY - radius)
-            *compteur++
-        }
-        *isTouching--
-    }
+	currentTouching := try.HandleSnakeApple(dequePosition, *randomPoint, radius*2)
+	*isTouching = max(*isTouching, currentTouching)
+	if *isTouching > 0 {
+		if *isTouching == 2*radius {
+			*randomPoint = get2dRandPoint(dequePosition, radius, maxX-radius, radius, maxY-radius)
+			*compteur++
+		}
+		*isTouching--
+	}
 }
 
 func run() {
@@ -54,24 +54,25 @@ func run() {
 	radiusFromData := min(width, height) / 45
 
 	var (
-		maxX int = int(width)
-		maxY int = int(height)
+		maxX   int = int(width)
+		maxY   int = int(height)
 		radius int = int(max(radiusFromData, 10))
 	)
 
 	var (
-		lastDirection [2]int
+		lastDirection    [2]int
 		currentDirection [2]int
-		isWin bool = true
-		isTouching int = 0
-		compteur int = 1
-		lastScore int = -1
+		isWin            bool = true
+		isTouching       int  = 0
+		compteur         int  = 1
+		lastScore        int  = -1
+		isRobot          bool = true
 	)
 
 	cfg := pixelgl.WindowConfig{
-		Title: "Go Snake",
+		Title:  "Go Snake",
 		Bounds: pixel.R(0, 0, float64(maxX), float64(maxY)),
-		VSync: true,
+		VSync:  true,
 	}
 
 	win, err := pixelgl.NewWindow(cfg)
@@ -86,7 +87,7 @@ func run() {
 	randomPoint := get2dRandPoint(dequePosition, radius, maxX-radius, radius, maxY-radius)
 
 	file, errFile := try.ReadFile("../data/data.json")
-	if errFile != nil{
+	if errFile != nil {
 		fmt.Println("Erreur Lecture fichier")
 		return
 	}
@@ -97,24 +98,42 @@ func run() {
 		fmt.Println("User Score:", user.Value)
 	}
 
+	myRobot := &try.Robot{}
+	myRobot.SetApplePosition(randomPoint)
+
+	initialPosition := &try.Deque{}
+	initialPosition.PushBack([]int{400, 300})
+	dequePosition = initialPosition 
+
+	myRobot.SetSnake(dequePosition)
+
+	myRobot.SetPath()
+
 	for !win.Closed() && isWin {
 		lastDirection = currentDirection
 
-        switch {
-            case win.Pressed(pixelgl.KeyRight):
-                currentDirection = [2]int{1, 0}
-            case win.Pressed(pixelgl.KeyLeft):
-                currentDirection = [2]int{-1, 0}
-            case win.Pressed(pixelgl.KeyUp):
-                currentDirection = [2]int{0, 1}
-            case win.Pressed(pixelgl.KeyDown):
-                currentDirection = [2]int{0, -1}
-        }
+		if !isRobot {
+			switch {
+			case win.Pressed(pixelgl.KeyRight):
+				currentDirection = [2]int{1, 0}
+			case win.Pressed(pixelgl.KeyLeft):
+				currentDirection = [2]int{-1, 0}
+			case win.Pressed(pixelgl.KeyUp):
+				currentDirection = [2]int{0, 1}
+			case win.Pressed(pixelgl.KeyDown):
+				currentDirection = [2]int{0, -1}
+			}
+		} else {
+			myRobot.SetSnake(dequePosition)
+			myRobot.SetApplePosition(randomPoint)
+
+			currentDirection = myRobot.GetNextDirection()
+		}
 
 		currentDirection = update_current(currentDirection, lastDirection)
 
 		if !dequePosition.Verify(radius) {
-            isWin = false
+			isWin = false
 			break
 		}
 
@@ -127,9 +146,9 @@ func run() {
 
 		update_randomPoint_and_touching(dequePosition, &randomPoint, &isTouching, &compteur, radius, maxX, maxY)
 
-        if compteur == 100 {
-            break // isWin = true
-        }
+		if compteur == 100 {
+			break
+		}
 
 		win.Clear(colornames.Black)
 		imd.Clear()
@@ -139,7 +158,6 @@ func run() {
 			imd.Push(pixel.V(float64(node.GetValue()[0]), float64(node.GetValue()[1])))
 			imd.Circle(float64(radius), 0)
 		}
-		
 
 		imd.Color = colornames.Red
 		imd.Push(pixel.V(float64(randomPoint[0]), float64(randomPoint[1])))
@@ -162,33 +180,33 @@ func run() {
 		win.Update()
 	}
 
-    if !isWin {
-        for !win.Closed(){
-            if win.Pressed(pixelgl.KeyEscape){
-                win.SetClosed(true)
-            }
-            win.Clear(colornames.Black)
-		    imd.Clear()
-            txt.Clear()
+	if !isWin {
+		for !win.Closed() {
+			if win.Pressed(pixelgl.KeyEscape) {
+				win.SetClosed(true)
+			}
+			win.Clear(colornames.Black)
+			imd.Clear()
+			txt.Clear()
 
-            fmt.Fprintf(txt, "Press ESC to close the game\n\nGame Over: %d", compteur)
-            txt.Draw(win, pixel.IM)
-            win.Update()
-        }
-    } else {
-        for !win.Closed(){
-            if win.Pressed(pixelgl.KeyEscape){
-                win.SetClosed(true)
-            }
-            win.Clear(colornames.Black)
-		    imd.Clear()
-            txt.Clear()
+			fmt.Fprintf(txt, "Press ESC to close the game\n\nGame Over: %d", compteur)
+			txt.Draw(win, pixel.IM)
+			win.Update()
+		}
+	} else {
+		for !win.Closed() {
+			if win.Pressed(pixelgl.KeyEscape) {
+				win.SetClosed(true)
+			}
+			win.Clear(colornames.Black)
+			imd.Clear()
+			txt.Clear()
 
-            fmt.Fprintf(txt, "Press ESC to close the game\n\nEnd of the game : %d", compteur)
-            txt.Draw(win, pixel.IM)
-            win.Update()
-        }
-    }
+			fmt.Fprintf(txt, "Press ESC to close the game\n\nEnd of the game : %d", compteur)
+			txt.Draw(win, pixel.IM)
+			win.Update()
+		}
+	}
 }
 
 func main() {

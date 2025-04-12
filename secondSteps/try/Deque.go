@@ -159,5 +159,9 @@ func (d *Deque) Print() {
 		fmt.Print(curr.value, " ")
 		curr = curr.next
 	}
+}
+
+func (d *Deque) Println() {
+	d.Print()
 	fmt.Println()
 }
