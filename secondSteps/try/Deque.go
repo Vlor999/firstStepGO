@@ -165,3 +165,18 @@ func (d *Deque) Println() {
 	d.Print()
 	fmt.Println()
 }
+
+func (d *Deque) Contains(position [2]int, radius int) bool {
+	copyHead := d.head
+	for copyHead != nil {
+		if (
+			len(copyHead.GetValue()) == len(position[:]) && 
+			copyHead.GetValue()[0] == position[0] && 
+			copyHead.GetValue()[1] == position[1] &&
+			(copyHead.GetValue()[0] - position[0]) * (copyHead.GetValue()[0] - position[0]) +  (copyHead.GetValue()[1] - position[1]) * (copyHead.GetValue()[1] - position[1]) > radius) {
+			return true
+		}
+		copyHead = copyHead.GetNext()
+	}
+	return false
+}

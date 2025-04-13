@@ -99,6 +99,7 @@ func run() {
 	}
 
 	myRobot := &try.Robot{}
+	myRobot.SetRadius(radius)
 	myRobot.SetApplePosition(randomPoint)
 
 	initialPosition := &try.Deque{}

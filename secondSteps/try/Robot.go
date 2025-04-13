@@ -8,6 +8,7 @@ type Robot struct {
 	Snake Deque
 	road  Deque
 	apple [2]int
+	radius int
 }
 
 func (d *Robot) Print() {
@@ -25,20 +26,16 @@ func heuristic(pos1 [2]int, pos2 [2]int) int {
 	return (pos1[0]-pos2[0])*(pos1[0]-pos2[0]) + (pos1[1]-pos2[1])*(pos1[1]-pos2[1])
 }
 
-// SetSnake initializes the robot's internal snake with the current game snake position
 func (d *Robot) SetSnake(gameSnake *Deque) {
 	d.Snake = Deque{}
 	if gameSnake != nil && gameSnake.head != nil {
-		// Copy the head position
 		d.Snake.PushBack([]int{gameSnake.head.value[0], gameSnake.head.value[1]})
 	} else {
-		// Default position if no snake exists
 		d.Snake.PushBack([]int{400, 300})
 	}
 }
 
 func (d *Robot) SetPath() {
-	// Make sure snake is initialized
 	if d.Snake.head == nil {
 		d.Snake.PushBack([]int{400, 300})
 	}
@@ -74,7 +71,7 @@ func (d *Robot) SetPath() {
 
 		delete(openSet, current)
 
-		for _, neighbor := range getNeighbors(current) {
+		for _, neighbor := range getNeighbors(current, *d) {
 			tentativeGScore := gScore[current] + 1
 
 			if g, exists := gScore[neighbor]; !exists || tentativeGScore < g {
@@ -89,13 +86,11 @@ func (d *Robot) SetPath() {
 		}
 	}
 
-	// If no path found, create a simple path toward the apple
 	d.road = Deque{}
 	if d.Snake.head != nil && d.Snake.head.value != nil {
 		dx := d.apple[0] - d.Snake.head.value[0]
 		dy := d.apple[1] - d.Snake.head.value[1]
 
-		// Move horizontally first
 		if dx != 0 {
 			dir := 1
 			if dx < 0 {
@@ -104,7 +99,6 @@ func (d *Robot) SetPath() {
 			d.road.PushBack([]int{d.Snake.head.value[0] + dir, d.Snake.head.value[1]})
 		}
 
-		// Then vertically
 		if dy != 0 {
 			dir := 1
 			if dy < 0 {
@@ -129,7 +123,7 @@ func reconstructPath(cameFrom map[[2]int][2]int, current [2]int) Deque {
 	return path
 }
 
-func getNeighbors(node [2]int) [][2]int {
+func getNeighbors(node [2]int, myRobot Robot) [][2]int {
 	directions := [][2]int{
 		{0, 1},
 		{1, 0},
@@ -139,7 +133,9 @@ func getNeighbors(node [2]int) [][2]int {
 	neighbors := make([][2]int, 0, len(directions))
 	for _, dir := range directions {
 		neighbor := [2]int{node[0] + dir[0], node[1] + dir[1]}
-		neighbors = append(neighbors, neighbor)
+		if !myRobot.Snake.Contains(neighbor, myRobot.radius){
+			neighbors = append(neighbors, neighbor)
+		}
 	}
 	return neighbors
 }
@@ -148,21 +144,20 @@ func (d *Robot) SetApplePosition(position [2]int) {
 	d.apple = position
 }
 
+func (d *Robot) SetRadius(radius int) {
+	d.radius = radius
+}
+
 func (d *Robot) GetNextDirection() [2]int {
-	// Default direction if there's no valid path
 	defaultDirection := [2]int{1, 0}
 
-	// Check if snake is initialized
 	if d.Snake.head == nil || d.Snake.head.value == nil {
 		return defaultDirection
 	}
 
-	// Check if we have a path
 	if d.road.size == 0 {
-		// Recalculate path
 		d.SetPath()
 
-		// Still no path? Return default
 		if d.road.size == 0 {
 			return defaultDirection
 		}
@@ -171,7 +166,6 @@ func (d *Robot) GetNextDirection() [2]int {
 	start := d.Snake.head.value
 	next := d.road.PopFront()
 
-	// If next is nil, return default direction
 	if next == nil {
 		return defaultDirection
 	}
