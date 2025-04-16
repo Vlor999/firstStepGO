@@ -167,16 +167,15 @@ func (d *Deque) Println() {
 }
 
 func (d *Deque) Contains(position [2]int, radius int) bool {
-	copyHead := d.head
-	for copyHead != nil {
-		if (
-			len(copyHead.GetValue()) == len(position[:]) && 
-			copyHead.GetValue()[0] == position[0] && 
-			copyHead.GetValue()[1] == position[1] &&
-			(copyHead.GetValue()[0] - position[0]) * (copyHead.GetValue()[0] - position[0]) +  (copyHead.GetValue()[1] - position[1]) * (copyHead.GetValue()[1] - position[1]) > radius) {
+	current := d.head
+	for current != nil {
+		dist := (current.GetValue()[0]-position[0])*(current.GetValue()[0]-position[0]) +
+			(current.GetValue()[1]-position[1])*(current.GetValue()[1]-position[1])
+
+		if dist <= radius * radius {
 			return true
 		}
-		copyHead = copyHead.GetNext()
+		current = current.GetNext()
 	}
 	return false
 }
